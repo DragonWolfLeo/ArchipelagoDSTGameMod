@@ -1,8 +1,8 @@
 name = "Archipelago Randomizer"
-version = "1.2.2.3"
+version = "1.3"
 description = "Version "..version.."\nThis is an implementation for Archipelago, a multi-game randomizer. To make use of this mod, you would need Archipelago!\n\nhttps://archipelago.gg"
 author = "Dragon Wolf Leo"
-version_compatible = "1.2.2.1"
+version_compatible = "1.3"
 
 -- ALSO if I forgot to credit him somewhere, this is built off of Niko's implementation:
 -- https://steamcommunity.com/sharedfiles/filedetails/?id=3113451317

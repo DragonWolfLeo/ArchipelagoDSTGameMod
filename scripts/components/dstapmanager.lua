@@ -63,9 +63,17 @@ local DSTAPManager = Class(function(self, inst)
     self.slotdata = {}
     self.physicalitemsthissession = {}
     self.clientversion = "0"
+    self.outputdata = {}
+    self.connected_timestamp = os.time()
+    self.last_send_time = os.time()
+    self.sendqueue_bookmark = 0
+    self.sendqueue_lowpriority_bookmark = 0
 
-    self.inst:DoStaticPeriodicTask(0.1, OnTick, nil, self)
+    -- self.inst:DoStaticPeriodicTask(0.1, OnTick, nil, self)
+    self.inst:DoStaticPeriodicTask(3, OnTick, nil, self)
     self.inst:ListenForEvent("playercountsdirty", function() self:ProcessItemQueue() end)
+
+    self:ResetOutputData()
 end)
 
 
@@ -135,6 +143,7 @@ function DSTAPManager:OnLoad(data)
     if data.slotdata then self.slotdata = data.slotdata end
     if data.slotname then self.slotname = data.slotname end
     self.slotnum = data.slotnum or 0
+    self:ResetOutputData()
 
     print("Loaded game. Continuing on slot "..self.slotnum.." ("..self.slotname..") with seed "..(self.seed or "None"))
     
@@ -280,12 +289,18 @@ function DSTAPManager:OnFindLocation(id)
         return
     end
     self:SendSignal("Item", {source = id})
+    ---- TODO: Delete when server functionality is restored
+    if loc then
+        TheNet:Announce("Location checked: "..loc.prettyname)
+    end
+    --
     if not self.connected then
         ArchipelagoDST.SendCommandToAllShards("removelocations", json.encode({id}))
         slotdata.missinglocations[id] = nil
-        if loc then
-		    TheNet:Announce("Location checked: "..loc.prettyname)
-        end
+        ---- TODO: Re-enable when server functionality is restored
+        -- if loc then
+		--     TheNet:Announce("Location checked: "..loc.prettyname)
+        -- end
         if slotdata.goallocations and slotdata.goallocations[id] then
             self:CheckGoalLocationStatus()
         end
@@ -408,7 +423,9 @@ function DSTAPManager:SendItems(items, isresync)
                         if item.tags["abstract"] then
                             abstractitems[id] = true                     
                         end
-                        
+
+                        TheNet:Announce("Item received: "..item.prettyname)
+
                         items_given_already = items_given_this_session
                     else
                         --print("Did not give physical/trap", item.prettyname, "because you already got it! Got", items_given_already,". This one's number",items_given_this_session)
@@ -418,6 +435,9 @@ function DSTAPManager:SendItems(items, isresync)
                 end
                 if isrecipe then
                     slotdata.collecteditems = slotdata.collecteditems or {}
+                    if not slotdata.collecteditems[id] then
+                        TheNet:Announce("Recipe received: "..item.prettyname)
+                    end
                     slotdata.collecteditems[id] = true
                     ArchipelagoDST.SendCommandToAllShards("gotitem", id)
                 end
@@ -432,6 +452,7 @@ function DSTAPManager:SendItems(items, isresync)
     end
 end
 function DSTAPManager:ManageEvent(datatype, data)
+    -- print("Managing event datatype", datatype)
     if datatype == nil and data == nil then return end
     if type(datatype) == "table" and data == nil then data = datatype datatype = data.datatype end
 
@@ -667,88 +688,292 @@ function DSTAPManager:ManageEvent(datatype, data)
         end
     end
 end
--- data is optional, will send a GET signal if data is nil, otherwise send a POST signal
-function DSTAPManager:QueryAP(fn, data)
-    if not ArchipelagoDST.AP_CLIENT_IP then
-        return
-    end
-    local intent = data == nil and "GET" or "POST"
-    local resultfn = function(result, success, resultCode) 
-        if fn ~= nil then
-            fn(result, success, resultCode)
-        end
-        self.pause = false
-    end
+-- -- data is optional, will send a GET signal if data is nil, otherwise send a POST signal
+-- function DSTAPManager:QueryAP(fn, data)
+--     if not ArchipelagoDST.AP_CLIENT_IP then
+--         return
+--     end
+--     local intent = data == nil and "GET" or "POST"
+--     local resultfn = function(result, success, resultCode) 
+--         if fn ~= nil then
+--             fn(result, success, resultCode)
+--         end
+--         self.pause = false
+--     end
 
-    self.pause = true
-    TheSim:QueryServer(
-        ArchipelagoDST.AP_CLIENT_IP,
-        resultfn,
-        intent,
-        TriangleTrashFill(data)
-    )
-end
+--     self.pause = true
+--     TheSim:QueryServer(
+--         ArchipelagoDST.AP_CLIENT_IP,
+--         resultfn,
+--         intent,
+--         TriangleTrashFill(data)
+--     )
+-- end
 
 
 ---------------------------Outgoing---------------------------
-local function defaultfn(result, success, resultCode)
-    if resultCode == 400 or resultCode == 500 then
-        print("Can't connect to AP Client. Result Code:", resultCode)
-    end
-end
+-- local function defaultfn(result, success, resultCode)
+--     if resultCode == 400 or resultCode == 500 then
+--         print("Can't connect to AP Client. Result Code:", resultCode)
+--     end
+-- end
 
-function DSTAPManager:PingAPClient()
-    local time = GetStaticTime()
-    self:QueryAP(
-        function(result, success, resultCode)
-            if resultCode == 200 then --Returns this if there is nothing to be updated about, just ping-pong as usual
-                self.ping = GetStaticTime() - time 
-            elseif resultCode == 100 then --Returns this if not connected to ap or has an event lined up from AP for us
-                self.ping = GetStaticTime() - time 
-                local suc, data = pcall( function() return json.decode(result) end )
-                if suc then
-                    self:ManageEvent(data.datatype, data)
-                else
-                    print("PingAPClient: Could not parse json", suc, data)
-                end
-            else --Returns this if it can not connect to the interface at all
-                self.ping = "5000"
-                self.connected = false
-                if TheWorld.dstap_state ~= false and not isShutDown() then
-                    ArchipelagoDST.SendCommandToAllShards("updateapstate", false, true)
-                end
-            end
-        end,
-        json.encode({datatype = "Ping"})
-    )
-end
+-- function DSTAPManager:PingAPClient()
+--     local time = GetStaticTime()
+--     self:QueryAP(
+--         function(result, success, resultCode)
+--             if resultCode == 200 then --Returns this if there is nothing to be updated about, just ping-pong as usual
+--                 self.ping = GetStaticTime() - time 
+--             elseif resultCode == 100 then --Returns this if not connected to ap or has an event lined up from AP for us
+--                 self.ping = GetStaticTime() - time 
+--                 local suc, data = pcall( function() return json.decode(result) end )
+--                 if suc then
+--                     self:ManageEvent(data.datatype, data)
+--                 else
+--                     print("PingAPClient: Could not parse json", suc, data)
+--                 end
+--             else --Returns this if it can not connect to the interface at all
+--                 self.ping = "5000"
+--                 self.connected = false
+--                 if TheWorld.dstap_state ~= false and not isShutDown() then
+--                     ArchipelagoDST.SendCommandToAllShards("updateapstate", false, true)
+--                 end
+--             end
+--         end,
+--         json.encode({datatype = "Ping"})
+--     )
+-- end
 
 -----------------------------Other-----------------------------
 
-function DSTAPManager:DoTick()
-    if self.pause == true then return end
+-- function DSTAPManager:DoTick_old()
+--     if self.pause == true then return end
 
-    if #self.queue > 0 then        
-        local signal = table.remove(self.queue, 1)
-        self:QueryAP(defaultfn, json.encode(signal))
-    else
-        self:PingAPClient()
+--     if #self.queue > 0 then        
+--         local signal = table.remove(self.queue, 1)
+--         self:QueryAP(defaultfn, json.encode(signal))
+--     else
+--         self:PingAPClient()
+--     end
+-- end
+
+-- function DSTAPManager:SendSignal_old(datatype, data)
+--     local senddata = {datatype = datatype}
+--     if data then
+--         for k, v in pairs(data) do
+--             senddata[k] = v 
+--         end
+--     end
+--     if datatype == "Connect" then
+--         self:QueryAP(defaultfn, json.encode(senddata))
+--     else
+--         table.insert(self.queue, senddata)
+--     end
+-- end
+
+
+function DSTAPManager:SetAPDataTaskDirty()
+    if not self.setapdata_task then
+        self.setapdata_task = function() self:SetAPData() end
     end
+end
+
+function DSTAPManager:ReadAPData(data)
+    -- Check if data is valid
+    if not data.slot or not data.seed_name then
+        print("ReadAPData error! No seed or slot defined!")
+        return
+    end
+
+    if not data.session_id or data.session_id ~= self.connected_timestamp then
+        -- Check if this a fresh world. Acknowledge client's seed and send it back
+        if not self.seed or self.seed == "None" then
+            -- if not self._fresh_seed_dirty_sent then
+            --     self._fresh_seed_dirty_sent = true
+                self.outputdata.seed = data.seed_name
+                self.outputdata.slotnum = data.slot
+                self:SetAPDataTaskDirty()
+            -- end
+        end
+        self.ping = "5000"
+        self.connected = false
+        if TheWorld.dstap_state ~= false and not isShutDown() then
+            ArchipelagoDST.SendCommandToAllShards("updateapstate", false, true)
+        end
+        self.sendqueue_bookmark = 0
+        self.sendqueue_lowpriority_bookmark = 0
+        self:Cancel_ProcessDataQueueTask()
+        return
+    end
+    -- self._fresh_seed_dirty_sent = nil
+
+    -- By now we trust the session. We can accept the seed
+    self.ping = 1
+    if not self.seed or self.seed == "None" then
+        -- Accept data. Seed and slot will be set automatically
+        self:ProcessDataQueue(data)
+    elseif self.slotnum ~= data.slot or self.seed ~= data.seed_name then
+        -- Don't accept different seed
+        if not self._announced_seed_mismatch then
+            self._announced_seed_mismatch = true
+            TheNet:Announce(STRINGS.ARCHIPELAGO_DST.WARN_FILEDATA_DIFFERENT_SEED_OR_SLOT)
+        end
+    else
+        -- Okay to proceed
+        self._announced_seed_mismatch = nil
+        self:ProcessDataQueue(data)
+    end
+end
+function DSTAPManager:Cancel_ProcessDataQueueTask()
+    if self._processdataqueue_task then
+        self._processdataqueue_task:Cancel()
+    end
+    self._processdataqueue_task = nil
+    self._sendqueue = nil
+    self._sendqueue_lowpriority = nil
+end
+function DSTAPManager:ProcessDataQueue(data)
+    if not data then return end
+    local function onProcessDataQueue()
+        local event
+        if self._sendqueue and #self._sendqueue > 0 then
+            event = table.remove(self._sendqueue, 1)
+            self._sendqueue_i = self._sendqueue_i + 1
+            if self._sendqueue_i > self.sendqueue_bookmark then
+                self.sendqueue_bookmark = self._sendqueue_i
+            end
+        elseif self._sendqueue_lowpriority and #self._sendqueue_lowpriority > 0 then
+            event = table.remove(self._sendqueue_lowpriority, 1)
+            self._sendqueue_lowpriority_i = self._sendqueue_lowpriority_i + 1
+            if self._sendqueue_lowpriority_i > self.sendqueue_lowpriority_bookmark then
+                self.sendqueue_lowpriority_bookmark = self._sendqueue_lowpriority_i
+            end
+        else
+            self:Cancel_ProcessDataQueueTask()
+        end
+        if event then
+            self:ManageEvent(event.datatype, event)
+        end
+    end
+    if not self._processdataqueue_task then -- Let this finish first before starting it again
+        self._sendqueue = data.sendqueue
+        self._sendqueue_i = 0
+        self._sendqueue_lowpriority = data.sendqueue_lowpriority
+        self._sendqueue_lowpriority_i = 0
+        -- Fast forward queues to the new stuff
+        while self._sendqueue_i < self.sendqueue_bookmark do
+            if self._sendqueue and #self._sendqueue > 0 then
+                table.remove(self._sendqueue, 1)
+            end
+            self._sendqueue_i = self._sendqueue_i + 1
+        end
+        while self._sendqueue_lowpriority_i < self.sendqueue_lowpriority_bookmark do
+            if self._sendqueue_lowpriority and #self._sendqueue_lowpriority > 0 then
+                table.remove(self._sendqueue_lowpriority, 1)
+            end
+            self._sendqueue_lowpriority_i = self._sendqueue_lowpriority_i + 1
+        end
+        -- print("Starting a new queue", self._sendqueue ~= nil and #self._sendqueue, self._sendqueue_lowpriority ~= nil and #self._sendqueue_lowpriority)
+        -- print("Bookmarks", self.sendqueue_bookmark, self.sendqueue_lowpriority_bookmark)
+        self._processdataqueue_task = self.inst:DoStaticPeriodicTask(0.1, onProcessDataQueue, nil, self)
+    end
+end
+
+function DSTAPManager:DoTick()
+    if os.time() - self.last_send_time > 2*60 then
+        self:SetAPDataTaskDirty()
+    end
+    if self.setapdata_task then
+        self.setapdata_task()
+        self.setapdata_task = nil
+    end
+    self:GetAPData(function(data) self:ReadAPData(data) end)
+end
+
+
+function DSTAPManager:ResetOutputData()
+    self.outputdata = {
+        seed = self.seed or "None",
+        slotnum = self.slotnum or 0,
+        slotname = self.slotname or "Unknown",
+    }
+    self:SetAPDataTaskDirty()
 end
 
 function DSTAPManager:SendSignal(datatype, data)
-    local senddata = {datatype = datatype}
-    if data then
-        for k, v in pairs(data) do
-            senddata[k] = v 
-        end
+    if not self.seed or self.seed == "None" then
+        return
     end
-    if datatype == "Connect" then
-        self:QueryAP(defaultfn, json.encode(senddata))
-    else
-        table.insert(self.queue, senddata)
+    local SIGNALFN = {
+        Victory = function(data)
+            self.outputdata[datatype] = true
+        end,
+        Item = function(data)
+            self.outputdata[datatype] = self.outputdata[datatype] or {}
+            local sources = {}
+            if data.source then
+                sources = {data.source}
+            elseif data.sources then
+                sources = data.sources
+            end
+            for _, v in ipairs(sources) do
+                if not table.contains(self.outputdata[datatype], v) then
+                    table.insert(self.outputdata[datatype], v)
+                end
+            end
+            table.insert(self.outputdata[datatype], data.id)
+        end,
+        DeathLink = function(data)
+            self.outputdata[datatype] = data
+        end,
+        Death = function(data)
+            self.outputdata[datatype] = self.outputdata[datatype] or {}
+            table.insert(self.outputdata[datatype], {
+                timestamp = os.time(),
+                msg = data.msg
+            })
+        end,
+        ScoutLocation = function(data)
+            self.outputdata[datatype] = self.outputdata[datatype] or {}
+            if not table.contains(self.outputdata[datatype], data.id) then
+                table.insert(self.outputdata[datatype], data.id)
+            end
+        end,
+        Hint = function(data)
+            self.outputdata[datatype] = self.outputdata[datatype] or {}
+            table.insert(self.outputdata[datatype], {
+                timestamp = os.time(),
+            })
+        end,
+    }
+    if SIGNALFN[datatype] then
+        SIGNALFN[datatype](data)
     end
+
+    self:SetAPDataTaskDirty()
 end
 
+function DSTAPManager:SetAPData()
+    self.outputdata.timestamp = os.time()
+    self.last_send_time = self.outputdata.timestamp
+    self.outputdata.connected_timestamp = self.connected_timestamp
+    local str = json.encode(self.outputdata)
+    SavePersistentString("archipelagorandomizer_outgoing", str)
+end
 
+function DSTAPManager:GetAPData(callback)
+	TheSim:GetPersistentString("archipelagorandomizer_incoming",
+		function(load_success, data)
+			if load_success and data ~= nil then
+                local status, incomingdata = pcall( function() return json.decode(data) end )
+                if status and incomingdata then
+                    if callback then
+                        callback(incomingdata)
+                    end
+                else
+                    print("Failed to get AP Data!", status, incomingdata)
+                end
+            end
+		end)
+end
 return DSTAPManager

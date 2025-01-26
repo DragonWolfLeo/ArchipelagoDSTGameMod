@@ -4,6 +4,7 @@ STRINGS.ARCHIPELAGO_DST = {
 	WORLD_LINKED_TO_AP_BUT_NOT_CONNECTED = "Currently not connected from Archipelago server. Item checks will sync once you reconnect.",
 	OUTDATED_CLIENT_VERSION = "Detected outdated client. It is recommended to update your .apworld to version "..GLOBAL.ArchipelagoDST.VERSION.CLIENT_VERSION_COMPATIBLE.." or newer!",
 	WARN_DIFFERENT_SEED_OR_SLOT = "Warning! Connected on a different seed or slot as previously saved. Save data is handled seperately, but there may still be unintended effects. Reloading is recommended!",
+	WARN_FILEDATA_DIFFERENT_SEED_OR_SLOT = "Error! Connected on a different seed or slot as previously saved. Load a new world, or connect to server used for this save.",
 }
 STRINGS.UI.CRAFTING.DSTAP_LOCKED = "This recipe was lost to the multiverse!"
 STRINGS.UI.CRAFTING.DSTAP_LOCKED_INGREDIENTS = "You can't make this because you haven't found all your ingredients!"
@@ -193,8 +194,11 @@ STRINGS.RECIPE_DESC.DSTAP_CARROT_SEEDS = "Transmute Seeds into Carrot Seeds!"
 STRINGS.UI.CRAFTING_STATION_FILTERS.DSTAP_RESEARCH = "Interdimensional Research"
 
 STRINGS.UI.DSTAP_MENU_CONNECTED = "Connected to Archipelago!"
-STRINGS.UI.DSTAP_MENU_NOT_AP_CONNECTED = "Connect to the Archipelago server through the client."
-STRINGS.UI.DSTAP_MENU_NOT_CLIENT_CONNECTED = "Open the Don't Starve Together Client through Archipelago's launcher."
+-- STRINGS.UI.DSTAP_MENU_NOT_AP_CONNECTED = "Connect to the Archipelago server through the client."
+-- STRINGS.UI.DSTAP_MENU_NOT_CLIENT_CONNECTED = "Open the Don't Starve Together Client through Archipelago's launcher."
+
+STRINGS.UI.DSTAP_MENU_NOT_AP_CONNECTED = "Error! --TODO--"
+STRINGS.UI.DSTAP_MENU_NOT_CLIENT_CONNECTED = "Connect to Archipelago through DST Client (Version 1.3 or newer) in Archipelago's launcher."
 
 -- Tracker strings
 STRINGS.DSTAP_TRACKER = {
