@@ -1,5 +1,5 @@
 name = "Archipelago Randomizer"
-version = "1.3"
+version = "1.3.0.1"
 description = "Version "..version.."\nThis is an implementation for Archipelago, a multi-game randomizer. To make use of this mod, you would need Archipelago!\n\nhttps://archipelago.gg"
 author = "Dragon Wolf Leo"
 version_compatible = "1.3"

@@ -198,7 +198,7 @@ STRINGS.UI.DSTAP_MENU_CONNECTED = "Connected to Archipelago!"
 -- STRINGS.UI.DSTAP_MENU_NOT_CLIENT_CONNECTED = "Open the Don't Starve Together Client through Archipelago's launcher."
 
 STRINGS.UI.DSTAP_MENU_NOT_AP_CONNECTED = "Error! --TODO--"
-STRINGS.UI.DSTAP_MENU_NOT_CLIENT_CONNECTED = "Connect to Archipelago through DST Client (Version 1.3 or newer) in Archipelago's launcher."
+STRINGS.UI.DSTAP_MENU_NOT_CLIENT_CONNECTED = "Connect to AP through DST Client (Version "..GLOBAL.ArchipelagoDST.VERSION.CLIENT_VERSION_COMPATIBLE.." or newer) in Archipelago's launcher."
 
 -- Tracker strings
 STRINGS.DSTAP_TRACKER = {

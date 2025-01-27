@@ -70,7 +70,7 @@ local DSTAPManager = Class(function(self, inst)
     self.sendqueue_lowpriority_bookmark = 0
 
     -- self.inst:DoStaticPeriodicTask(0.1, OnTick, nil, self)
-    self.inst:DoStaticPeriodicTask(3, OnTick, nil, self)
+    self.inst:DoStaticPeriodicTask(2, OnTick, nil, self)
     self.inst:ListenForEvent("playercountsdirty", function() self:ProcessItemQueue() end)
 
     self:ResetOutputData()
@@ -289,22 +289,16 @@ function DSTAPManager:OnFindLocation(id)
         return
     end
     self:SendSignal("Item", {source = id})
-    ---- TODO: Delete when server functionality is restored
-    if loc then
-        TheNet:Announce("Location checked: "..loc.prettyname)
-    end
-    --
-    if not self.connected then
+    -- if not self.connected then
         ArchipelagoDST.SendCommandToAllShards("removelocations", json.encode({id}))
         slotdata.missinglocations[id] = nil
-        ---- TODO: Re-enable when server functionality is restored
-        -- if loc then
-		--     TheNet:Announce("Location checked: "..loc.prettyname)
-        -- end
+        if loc then
+		    TheNet:Announce("Location checked: "..loc.prettyname)
+        end
         if slotdata.goallocations and slotdata.goallocations[id] then
             self:CheckGoalLocationStatus()
         end
-    end
+    -- end
 end
 function DSTAPManager:OnLegacyGoalLocation(id)
     local slotdata = self:GetSlotData()
@@ -777,6 +771,13 @@ function DSTAPManager:SetAPDataTaskDirty()
         self.setapdata_task = function() self:SetAPData() end
     end
 end
+function DSTAPManager:SendAPDataImmediately()
+    if self.setapdata_task then
+        self.setapdata_task:Cancel()
+        self.setapdata_task = nil
+    end
+    self:SetAPData()
+end
 
 function DSTAPManager:ReadAPData(data)
     -- Check if data is valid
@@ -881,7 +882,7 @@ end
 
 function DSTAPManager:DoTick()
     if os.time() - self.last_send_time > 2*60 then
-        self:SetAPDataTaskDirty()
+        self:SendAPDataImmediately()
     end
     if self.setapdata_task then
         self.setapdata_task()
@@ -904,6 +905,7 @@ function DSTAPManager:SendSignal(datatype, data)
     if not self.seed or self.seed == "None" then
         return
     end
+    local immediate = false
     local SIGNALFN = {
         Victory = function(data)
             self.outputdata[datatype] = true
@@ -922,6 +924,7 @@ function DSTAPManager:SendSignal(datatype, data)
                 end
             end
             table.insert(self.outputdata[datatype], data.id)
+            immediate = true
         end,
         DeathLink = function(data)
             self.outputdata[datatype] = data
@@ -950,7 +953,11 @@ function DSTAPManager:SendSignal(datatype, data)
         SIGNALFN[datatype](data)
     end
 
-    self:SetAPDataTaskDirty()
+    if immediate then
+        self:SendAPDataImmediately()
+    else
+        self:SetAPDataTaskDirty()
+    end
 end
 
 function DSTAPManager:SetAPData()

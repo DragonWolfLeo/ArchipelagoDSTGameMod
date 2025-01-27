@@ -59,7 +59,7 @@ local TUNING = GLOBAL.TUNING
 GLOBAL.ArchipelagoDST = {
 	AP_CLIENT_IP = "localhost:8000", -- URL the mod needs to reach the Archipelago client. If some reason you want to reach a client from another machine, you'll need to change the apworld's socket bind to 0.0.0.0
 	VERSION = {
-		CLIENT_VERSION_COMPATIBLE = "1.1",
+		CLIENT_VERSION_COMPATIBLE = "1.3.0.1",
 	},
 	TUNING = {
 		BEE_TRAP_COUNT = 3,
