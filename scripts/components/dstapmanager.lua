@@ -257,7 +257,7 @@ function DSTAPManager:SetupGoalType()
                     table.insert(goallist, v.id)
                 end
             end
-            goalinfo.goallist = goallocations
+            goalinfo.goallist = goallist
         else
             goalinfo.goallist = setToList(slotdata.goallocations)
         end
