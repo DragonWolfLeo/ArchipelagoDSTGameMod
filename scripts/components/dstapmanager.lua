@@ -65,7 +65,6 @@ local DSTAPManager = Class(function(self, inst)
     self.clientversion = "0"
 
     self.inst:DoStaticPeriodicTask(0.1, OnTick, nil, self)
-    self.inst:ListenForEvent("playercountsdirty", function() self:ProcessItemQueue() end)
 end)
 
 
@@ -202,6 +201,7 @@ function DSTAPManager:ProcessItemQueue()
         return
     end
     
+    local slotdata = self:GetSlotData()
     if slotdata.physicalitemqueue then 
         while #slotdata.physicalitemqueue > 0 do
             ArchipelagoDST.SendCommandToAllShards("gotphysical", table.remove(slotdata.physicalitemqueue, 1))
@@ -727,6 +727,7 @@ end
 
 function DSTAPManager:DoTick()
     if self.pause == true then return end
+    self:ProcessItemQueue()
 
     if #self.queue > 0 then        
         local signal = table.remove(self.queue, 1)
