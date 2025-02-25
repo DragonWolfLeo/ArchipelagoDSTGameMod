@@ -166,11 +166,9 @@ end
 local function StatChange(type, amount)
 	return function()
 		for _, player in pairs(GLOBAL.AllPlayers) do
-			if not player:HasTag("playerghost") then
-				local targetstat = player.components[type]
-				if targetstat then
-					targetstat:DoDelta(amount)
-				end
+			local targetstat = player.components[type]
+			if targetstat then
+				targetstat:DoDelta(amount)
 			end
 		end
 	end
