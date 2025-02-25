@@ -772,11 +772,8 @@ function DSTAPManager:SetAPDataTaskDirty()
     end
 end
 function DSTAPManager:SendAPDataImmediately()
-    if self.setapdata_task then
-        self.setapdata_task:Cancel()
-        self.setapdata_task = nil
-    end
     self:SetAPData()
+    self.setapdata_task = nil
 end
 
 function DSTAPManager:ReadAPData(data)
