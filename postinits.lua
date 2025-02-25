@@ -435,8 +435,6 @@ local function BuilderPostInit(self, inst)
         end
         return HasIngredients_prev(self, recipe_prev, ...)
 	end
-
-    self:DSTAP_GiveFreeSamples()
 end
 AddComponentPostInit("builder", BuilderPostInit)
 
@@ -1319,6 +1317,27 @@ AddPlayerPostInit(function(inst)
 
         inst:dstap_refreshdamagebonus()
         inst:ListenForEvent("dstap_damagebonus_changed", inst.dstap_refreshdamagebonus, GLOBAL.TheWorld)
+
+        -- Give free samples after builder loads
+        local OnNewSpawn_prev = inst.OnNewSpawn
+        inst.OnNewSpawn = function(inst, ...)
+            if inst.components.builder then
+                inst.components.builder:DSTAP_GiveFreeSamples()
+            end
+            if OnNewSpawn_prev then
+                return OnNewSpawn_prev(inst, ...)
+            end
+        end
+
+        local OnLoad_prev = inst.OnLoad
+        inst.OnLoad = function(inst, ...)
+            if inst.components.builder then
+                inst.components.builder:DSTAP_GiveFreeSamples()
+            end
+            if OnLoad_prev then
+                return OnLoad_prev(inst, ...)
+            end
+        end
     end
 end)
 
