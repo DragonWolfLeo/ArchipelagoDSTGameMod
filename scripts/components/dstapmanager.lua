@@ -963,6 +963,7 @@ function DSTAPManager:SetAPData()
     self.last_send_time = self.outputdata.timestamp
     self.outputdata.connected_timestamp = self.connected_timestamp
     local str = json.encode(self.outputdata)
+    str = str:gsub("\\'","'") -- Remove apostrophe escapes because they cause issues and seem redundant
     SavePersistentString("archipelagorandomizer_outgoing", str)
 end
 
