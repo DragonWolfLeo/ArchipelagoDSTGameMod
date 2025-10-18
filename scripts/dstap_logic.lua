@@ -63,7 +63,7 @@ local function has(item, difficulty)
         return CHARACTER_RULES[item](difficulty)
     end
     local craftablefn = id and CAN_CRAFT[id]
-    local hasfn = id and HAS_ITEM[id]
+    local hasfn = id and HAS_ITEM[id] or function() return true end
     local is_craftable = (craftablefn and craftablefn(difficulty)) or (hasfn and hasfn(difficulty))
     if ArchipelagoDST.crafting_mode == ArchipelagoDST.CRAFT_MODES.LOCKED_INGREDIENTS then
         return is_craftable and ArchipelagoDST.collecteditems[id]
@@ -1395,7 +1395,7 @@ local Logic = Class(function(self)
         ["Frozen Banana Daiquiri"] =            cookrecipe(any(NoSpreadEvent("cave_exploration"), Event("moon_quay")), {"cave_banana", "ice", "berries", "berries"}),
         ["Banana Shake"] =                      cookrecipe(any(NoSpreadEvent("cave_exploration"), Event("moon_quay")), {"cave_banana", "cave_banana", "twigs", "twigs"}),
         ["Ceviche"] =                           cookrecipe(any(Event("sea_fishing"), REGION.CAVE and all(Event("cave_exploration"), "Freshwater Fishing Rod")), {"ice", REGION.OCEAN and "fishmeat" or "eel", "fishmeat_small", "fishmeat_small"}),
-        ["Salsa Fresca"] =                      cookrecipe(Event("tomaroot_farming"), {"tomato", "onion", "berries", "berries"}),
+        ["Salsa Fresca"] =                      cookrecipe(all(Event("tomaroot_farming"), Event("onion_farming")), {"tomato", "onion", "berries", "berries"}),
         ["Stuffed Pepper Poppers"] =            cookrecipe(Event("pepper_farming"), {"pepper", "smallmeat", "berries", "berries"}),
         ["California Roll"] =                   cookrecipe(Event("sea_fishing"), {"kelp", "kelp", "fishmeat_small", "fishmeat_small"}),
         ["Seafood Gumbo"] =                     cookrecipe(all(Event("cave_exploration"), "Freshwater Fishing Rod"), {"eel", "fishmeat_small", "fishmeat_small", "fishmeat_small"}),
@@ -1429,14 +1429,14 @@ local Logic = Class(function(self)
         ["Grim Galette"] =                      cookrecipe(all(Event("potato_farming"), Event("onion_farming")), {"nightmarefuel", "nightmarefuel", "potato", "onion"}),
         ["Volt Goat Chaud-Froid"] =             cookrecipe(Event("basic_combat"), {"lightninggoathorn", "honey", "honey", "twigs"}),
         ["Glow Berry Mousse"] =                 cookrecipe(Event("cave_exploration"), {"wormlight_lesser", "wormlight_lesser", "berries", "berries"}),
-        ["Fish Cordon Bleu"] =                  cookrecipe(Event("sea_fishing"), {"froglegs", "froglegs", "fishmeat_small", "fishmeat_small"}),
+        ["Fish Cordon Bleu"] =                  cookrecipe(Event("fishing"), {"froglegs", "froglegs", "fishmeat_small", "fishmeat_small"}),
         ["Hot Dragon Chili Salad"] =            cookrecipe(all(Event("pepper_farming"), any(Event("dragonfruit_from_saladmander"), Event("dragonfruit_farming"))), {"dragonfruit", "pepper", "berries", "berries"}),
         ["Asparagazpacho"] =                    cookrecipe(Event("asparagus_farming"), {"asparagus", "asparagus", "ice", "ice"}),
         ["Puffed Potato Soufflé"] =             cookrecipe(all(Event("any_eggs"), Event("potato_farming")), {"potato", "potato", "bird_egg", "berries"}),
         ["Monster Tartare"] =                   cookrecipe(Event("pre_basic_combat"), {"monstermeat", "monstermeat", "berries", "berries"}),
         ["Fresh Fruit Crepes"] =                cookrecipe(all(Event("fruits"), Event("butter")), {"watermelon", "berries", "butter", "honey"}),
         ["Bone Bouillon"] =                     cookrecipe(all("Hammer", Event("onion_farming")), {"boneshard", "boneshard", "onion", "berries"}),
-        ["Moqueca"] =                           cookrecipe(all(Event("sea_fishing"), Event("tomaroot_farming")), {"onion", "tomato", "fishmeat_small", "berries"}),
+        ["Moqueca"] =                           cookrecipe(all(Event("fishing"), Event("tomaroot_farming")), {"onion", "tomato", "fishmeat_small", "berries"}),
         -- Farming
         ["Grow Giant Asparagus"] =              all(Event("asparagus_farming"), FARMPLANT_SEASON_RULES["Asparagus"]),
         ["Grow Giant Garlic"] =                 all(Event("garlic_farming"), FARMPLANT_SEASON_RULES["Garlic"]),
