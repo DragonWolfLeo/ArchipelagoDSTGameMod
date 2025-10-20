@@ -63,7 +63,7 @@ local function has(item, difficulty)
         return CHARACTER_RULES[item](difficulty)
     end
     local craftablefn = id and CAN_CRAFT[id]
-    local hasfn = id and HAS_ITEM[id] or function() return true end
+    local hasfn = id and HAS_ITEM[id]
     local is_craftable = (craftablefn and craftablefn(difficulty)) or (hasfn and hasfn(difficulty))
     if ArchipelagoDST.crafting_mode == ArchipelagoDST.CRAFT_MODES.LOCKED_INGREDIENTS then
         return is_craftable and ArchipelagoDST.collecteditems[id]
@@ -1202,8 +1202,8 @@ local Logic = Class(function(self)
     HAS_ITEM = {}
     CAN_CRAFT = {}
     PRETTYNAME_ITEM_INGREDIENTS = {}
-    for id, istrue in pairs(ArchipelagoDST.collecteditems) do
-        local item = ArchipelagoDST.ID_TO_ITEM[id]
+    for id, item in pairs(ArchipelagoDST.ID_TO_ITEM) do
+        local istrue = ArchipelagoDST.collecteditems[id] or (ArchipelagoDST.lockableitems[id] ~= true)
         if item and (istrue or ITEM_ADDITIONAL_RULE[id]) then
             self:SetIsCraftable(item.prefab, "default")
             self:SetIsCraftable(item.prefab, "hard")
@@ -1761,7 +1761,7 @@ function Logic:SetIsCraftable(prefab)
     end
     local recipe = AllRecipes[prefab]
     if recipe then
-        local is_unlocked = recipe.dstap_locked == false
+        local is_unlocked = not recipe.dstap_locked -- false: received item; nil: not shuffled
         local hasitemrules = {}
         local cancraftrules = {function() return is_unlocked end}
         local itemadditionalrule = ITEM_ADDITIONAL_RULE[item.id]
