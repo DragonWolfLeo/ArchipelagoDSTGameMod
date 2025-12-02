@@ -838,7 +838,7 @@ local Logic = Class(function(self)
             helpful = "Hammer",
         }),
         lightning_rod = add_event("Lightning Rod", {
-            default = any("Lightning Rod"),
+            default = self_reference(),
             hard    = all("Lightning Conductor", "Mast Kit"),
             spread  = false,
         }),
@@ -988,14 +988,14 @@ local Logic = Class(function(self)
         garlic_farming = add_farming_event("Garlic"),
         pumpkin_farming = add_farming_event("Pumpkin"),
         corn_farming = add_farming_event("Corn",
-            hard(all(Event("basic_farming"), Event("bird_caging"), Event("sea_fishing"))) -- Corn cod
+            REGION.OCEAN and hard(all(Event("basic_farming"), Event("bird_caging"), Event("sea_fishing"))) or nil -- Corn cod
         ),
         onion_farming = add_farming_event("Onion"),
         potato_farming = add_farming_event("Potato",
             hard(all(Event("basic_farming"), Event("bird_caging"))) -- Junk pile
         ),
         dragonfruit_farming = add_farming_event("Dragon Fruit",
-            hard(all(Event("basic_farming"), Event("dragonfruit_from_saladmander"), Event("bird_caging")))
+            REGION.OCEAN and hard(all(Event("basic_farming"), Event("dragonfruit_from_saladmander"), Event("bird_caging"))) or nil
         ),
         pomegranate_farming = add_farming_event("Pomegranate"),
         eggplant_farming = add_farming_event("Eggplant"),
@@ -1022,7 +1022,7 @@ local Logic = Class(function(self)
             default = any(Event("pomegranate_farming"), Event("watermelon_farming"), Event("durian_farming")),
             hard    = REGION.RUINS and Event("ruins_exploration") or nil,
         }),
-        dragonfruit_from_saladmander = add_event("Dragon Fruit from Saladmander", {
+        dragonfruit_from_saladmander = REGION.OCEAN and add_event("Dragon Fruit from Saladmander", {
             default = all(Event("lunar_island"), Event("basic_combat"), "Bath Bomb"),
         }),
         dairy = add_event("Dairy", {
