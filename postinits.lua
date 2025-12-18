@@ -1117,14 +1117,12 @@ local function ApplyBossDamageMult(prefab, israidboss)
             return -- Don't make friendly grumble bees vulnerable
         end
         inst.dstap_refreshbossdamagemult = function(world)
-            local multiplicative = true
+            local exponential = true
             local multiplier = 1
             local addmult = israidboss and DSTAP.TUNING.EXTRA_RAIDBOSS_DAMAGE_STACK_MULT or DSTAP.TUNING.EXTRA_BOSS_DAMAGE_STACK_MULT
             local stacks = DSTAP.TUNING.EXTRA_BOSS_DAMAGE_INITIAL + (DSTAP.abstractitems["extrabossdamage"] or 0)
-            if multiplicative then
-                for i = 1, stacks do
-                    multiplier = multiplier * (1 + addmult)
-                end
+            if exponential then
+                multiplier = math.pow((1 + addmult), stacks)
             else -- additive
                 multiplier = multiplier + (stacks * addmult)
             end
@@ -1301,14 +1299,12 @@ AddPlayerPostInit(function(inst)
 
         -- Add damage bonus
         inst.dstap_refreshdamagebonus = function(world)
-            local multiplicative = true
+            local exponential = true
             local multiplier = 1
             local addmult = DSTAP.TUNING.DAMAGE_BONUS_STACK_MULT
             local stacks = DSTAP.TUNING.DAMAGE_BONUS_INITIAL + (DSTAP.abstractitems["damagebonus"] or 0)
-            if multiplicative then
-                for i = 1, stacks do
-                    multiplier = multiplier * (1 + addmult)
-                end
+            if exponential then
+                multiplier = math.pow((1 + addmult), stacks)
             else -- additive
                 multiplier = multiplier + (stacks * addmult)
             end
