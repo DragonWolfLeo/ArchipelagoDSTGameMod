@@ -912,9 +912,6 @@ local LOCATION_SCRAPBOOK_ALIASES = {
     -- Bosses (251-300)
     alterguardian_phase3 = "alterguardian_phase1", --  Celestial Champion
 
-    -- Creatures (301-450)
-    ruins_shadeling = "ruins_chair", -- Resting Horror
-
     -- Magic (601-700)
     [612] = "canary",       -- Magic (Canary (Volatile))
     [620] = "researchlab3", -- Magic (Health)
