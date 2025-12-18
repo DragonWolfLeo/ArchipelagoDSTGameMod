@@ -57,7 +57,7 @@ local STRINGS = GLOBAL.STRINGS
 local TUNING = GLOBAL.TUNING
 
 GLOBAL.ArchipelagoDST = {
-	AP_CLIENT_IP = "localhost:8000", -- URL the mod needs to reach the Archipelago client. If some reason you want to reach a client from another machine, you'll need to change the apworld's socket bind to 0.0.0.0
+	-- AP_CLIENT_IP = "localhost:8000", -- URL the mod needs to reach the Archipelago client. If some reason you want to reach a client from another machine, you'll need to change the apworld's socket bind to 0.0.0.0
 	VERSION = {
 		CLIENT_VERSION_COMPATIBLE = "1.3.0.1",
 	},
@@ -90,6 +90,8 @@ GLOBAL.ArchipelagoDST = {
 		OVERRIDE_DEATH_LINK = GetModConfigData("deathlink_override") ~= "none" and GetModConfigData("deathlink_override") or false,
 
 		TRAP_DECOY_NAME_CHANCE = GetModConfigData("trapdecoyname_chance") or 0.95,
+
+		RECEIVE_OFFLINE_TRAPS = GetModConfigData("receiveofflinetraps") and true or false
 	},
 	CRAFT_MODES = {
 		VANILLA = "vanilla",

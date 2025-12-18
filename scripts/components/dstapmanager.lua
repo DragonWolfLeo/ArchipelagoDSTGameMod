@@ -406,7 +406,7 @@ function DSTAPManager:SendItems(items, isresync)
                             givelast = function() ArchipelagoDST.SendCommandToAllShards("goteffect", id) end
                         elseif item.tags["trap"] then
                             -- This is a regular trap. Don't give if giving a whole resync
-                            if not isresync then
+                            if ArchipelagoDST.TUNING.RECEIVE_OFFLINE_TRAPS or not isresync then
                                 ArchipelagoDST.SendCommandToAllShards("goteffect", id)
                             end
                         elseif item.tags["junk"] then

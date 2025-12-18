@@ -249,4 +249,15 @@ configuration_options =
         default = 0.95,
         hover = "At a research station, the chance a trap item will disguise itself as a randomly generated name.",
     },
+    {
+        name = "receiveofflinetraps",
+        label = "Receive Offline Traps",
+        options =
+        {
+            {description = "Disabled", data = false, hover = "Ignore traps received offline, except season traps."},
+            {description = "Enabled",  data = true,  hover = "Receive traps received offline upon connecting."},
+        },
+        default = true,
+        hover = "Receive traps received offline?",
+    },
 }
