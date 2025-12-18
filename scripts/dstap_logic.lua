@@ -1,24 +1,8 @@
-
--- Helper functions
-local function setToList(t)
-    local ret = {}
-    for k, v in pairs(t) do
-        if v then
-            table.insert(ret, k)
-        end
-    end
-    return ret
-end
-local function listToSet(t)
-    local ret = {}
-    for _, v in ipairs(t) do
-        ret[v] = true
-    end
-    return ret
-end
-------------------
 local _unsafe_rules = true
-------------------
+-- Constant rules
+local ALWAYS_TRUE = function() return true end
+local ALWAYS_FALSE = function() return false end
+--
 local PRETTYNAME_TO_ITEM_ID = {}
 for id, v in pairs(ArchipelagoDST.ID_TO_ITEM) do
     PRETTYNAME_TO_ITEM_ID[v.prettyname] = id
@@ -70,15 +54,6 @@ local function has(item, difficulty)
     end
     return is_craftable
 end
-local function combineSets(a,b)
-    if not a then return b end
-    if not b then return a end
-    local c = deepcopy(a)
-    for k, _ in pairs(b) do
-        c[k] = true
-    end
-    return c
-end
 
 local LogicHelper = Class(function(self) end)
 
@@ -102,7 +77,7 @@ function LogicHelper:toRule(node, difficulty)
     elseif type(node) == "table" then
         assert(not _unsafe_rules)
         local fn
-        if node[difficulty.."_cached"] then
+        if node[difficulty.."_cached"] ~= nil then
             -- print("> Returning Cached Result <")
             return node[difficulty.."_cached"]
         end
@@ -139,6 +114,8 @@ function LogicHelper:toRule(node, difficulty)
         end
         
         if fn then
+             -- Pre-cache in case we end up looping back here, so we could return false and get out of here
+            node[difficulty.."_cached"] = ALWAYS_FALSE
             -- print("toRule: Calling rule:", node and node.type or "unnamed")
             local result = fn(difficulty)
             -- print("toRule: Returning and caching rule result:", result, node and node.type or "unnamed")
@@ -441,8 +418,6 @@ local function noop(rule)
     return rule
 end
 
-local ALWAYS_TRUE = function() return true end
-local ALWAYS_FALSE = function() return false end
 local Logic = Class(function(self)
     _unsafe_rules = true
     ITEM_EVENT_REFERENCES = {}
