@@ -91,7 +91,9 @@ GLOBAL.ArchipelagoDST = {
 
 		TRAP_DECOY_NAME_CHANCE = GetModConfigData("trapdecoyname_chance") or 0.95,
 
-		RECEIVE_OFFLINE_TRAPS = GetModConfigData("receiveofflinetraps") and true or false
+		RECEIVE_OFFLINE_TRAPS = GetModConfigData("receiveofflinetraps") and true or false,
+		
+		DEATHLINK_PENALTY = GetModConfigData("deathlink_penalty") or 1,
 	},
 	CRAFT_MODES = {
 		VANILLA = "vanilla",

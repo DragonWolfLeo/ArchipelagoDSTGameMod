@@ -258,6 +258,25 @@ configuration_options =
             {description = "Enabled",  data = true,  hover = "Receive traps received offline upon connecting."},
         },
         default = true,
-        hover = "Receive traps received offline?",
+        hover = "Allow traps (besides season traps) received offline to still have an effect?",
+    },
+    {
+        name = "deathlink_penalty",
+        label = "Percentage Health Loss on Death Link",
+        options =
+        {
+            {description = "10%",  data = 0.1},
+            {description = "20%",  data = 0.2},
+            {description = "30%",  data = 0.3},
+            {description = "40%",  data = 0.4},
+            {description = "50%",  data = 0.5},
+            {description = "60%",  data = 0.6},
+            {description = "70%",  data = 0.7},
+            {description = "80%",  data = 0.8},
+            {description = "90%",  data = 0.9},
+            {description = "100%", data = 1.0},
+        },
+        default = 1.0,
+        hover = "Amount of health lost when receiving a Death Link.",
     },
 }

@@ -218,7 +218,9 @@ local RPCCommand = {
 	deathlink = function(cmd, data)
 		for i, player in ipairs(GLOBAL.AllPlayers) do
 			if not player:HasTag("playerghost") then
-				player.components.health:SetPercent(0, nil, "deathlink")
+				targetpercent = math.max(player.components.health:GetPercent() - DSTAP.TUNING.DEATHLINK_PENALTY, 0)
+                player:PushEvent("consumehealthcost")
+				player.components.health:SetPercent(targetpercent, nil, "deathlink")
 			end
 		end
 	end,
