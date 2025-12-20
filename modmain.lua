@@ -94,6 +94,8 @@ GLOBAL.ArchipelagoDST = {
 		RECEIVE_OFFLINE_TRAPS = GetModConfigData("receiveofflinetraps") and true or false,
 		
 		DEATHLINK_PENALTY = GetModConfigData("deathlink_penalty") or 1,
+
+		OVERRIDE_LOCAL_DEATH_LINK = GetModConfigData("localdeathlink") or "match",
 	},
 	CRAFT_MODES = {
 		VANILLA = "vanilla",

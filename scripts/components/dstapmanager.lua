@@ -516,7 +516,8 @@ function DSTAPManager:ManageEvent(datatype, data)
             local effective_deathlink = data.death_link
             if ArchipelagoDST.TUNING.OVERRIDE_DEATH_LINK then
                 effective_deathlink = ArchipelagoDST.TUNING.OVERRIDE_DEATH_LINK == "enabled"
-            end 
+            end
+            slotdata.deathlink = effective_deathlink
             self:SendSignal("DeathLink", {enabled = effective_deathlink})
         end
 
@@ -928,6 +929,7 @@ function DSTAPManager:SendSignal(datatype, data)
             self.outputdata[datatype] = data
         end,
         Death = function(data)
+            self:SendLocalDeath()
             self.outputdata[datatype] = self.outputdata[datatype] or {}
             table.insert(self.outputdata[datatype], {
                 timestamp = os.time(),
@@ -981,5 +983,20 @@ function DSTAPManager:GetAPData(callback)
                 end
             end
 		end)
+end
+
+function DSTAPManager:SendLocalDeath()
+    -- Check if local death link is disabled entirely
+    if ArchipelagoDST.TUNING.OVERRIDE_LOCAL_DEATH_LINK == "disabled" then
+        return
+    end
+    -- Check main death link if set to match
+    if ArchipelagoDST.TUNING.OVERRIDE_LOCAL_DEATH_LINK == "match" then
+        if ArchipelagoDST.TUNING.OVERRIDE_DEATH_LINK == "disabled" or not self:GetSlotData().deathlink then
+            return
+        end
+    end
+    -- Okay to send local death
+    ArchipelagoDST.SendCommandToAllShards("deathlink", true)
 end
 return DSTAPManager

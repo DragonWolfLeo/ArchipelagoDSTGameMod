@@ -224,6 +224,18 @@ configuration_options =
         hover = "Override Death Link regardless of your YAML settings.",
     },
     {
+        name = "localdeathlink",
+        label = "Local Death Link",
+        options =
+        {
+            {description = "Match Death Link", data = "match",    hover = "Match Archipelago Death Link settings."},
+            {description = "Disabled",         data = "disabled", hover = "Local Death Link is always off."},
+            {description = "Enabled",          data = "enabled",  hover = "Local Death Link is always on."},
+        },
+        default = "match",
+        hover = "When a player dies, all other players playing on the same world die.",
+    },
+    {
         name = "trapdecoyname_chance",
         label = "Trap Decoy Name Chance",
         options =
