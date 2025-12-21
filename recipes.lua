@@ -1,6 +1,9 @@
 --------------------------------------------------
 -- Season Change Recipes
 local setseason = function(season)
+	if GLOBAL.TheWorld:HasTag("cave") then
+		return false, "DSTAP_SEASONCHANGEFAIL_CAVE"
+	end
 	if GLOBAL.TheWorld.state.season == season then
 		return false, "DSTAP_SEASONCHANGEFAIL"
 	end
@@ -8,6 +11,9 @@ local setseason = function(season)
 	return true
 end
 local setmoonphase = function(moonphase)
+	if GLOBAL.TheWorld:HasTag("cave") then
+		return false, "DSTAP_SEASONCHANGEFAIL_CAVE"
+	end
 	if GLOBAL.TheWorld.state.moonphase == moonphase then
 		return false, "DSTAP_MOONPHASECHANGEFAIL"
 	end
