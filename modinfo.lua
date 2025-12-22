@@ -1,5 +1,5 @@
 name = "Archipelago Randomizer"
-version = "1.3.2.3"
+version = "1.3.3"
 description = "Version "..version.."\nThis is an implementation for Archipelago, a multi-game randomizer. To make use of this mod, you would need Archipelago!\n\nhttps://archipelago.gg"
 author = "Dragon Wolf Leo"
 version_compatible = "1.3"
@@ -290,5 +290,28 @@ configuration_options =
         },
         default = 1.0,
         hover = "Amount of health lost when receiving a Death Link.",
+    },
+    {
+        name = "seasonchangecooldown_days",
+        label = "Season Change Cooldown",
+        options =
+        {
+            {description = "None",     data = 0  },
+            {description = "Half Day", data = 0.5},
+            {description = "1 Day",    data = 1  },
+            {description = "3 Days",   data = 3  },
+            {description = "7 Days",   data = 7  },
+            {description = "14 Days",  data = 14 },
+            {description = "21 Days",  data = 21 },
+            {description = "28 Days",  data = 28 },
+            {description = "35 Days",  data = 35 },
+            {description = "42 Days",  data = 42 },
+            {description = "49 Days",  data = 49 },
+            {description = "56 Days",  data = 56 },
+            {description = "63 Days",  data = 63 },
+            {description = "70 Days",  data = 70 },
+        },
+        default = 1,
+        hover = "Cooldown of season changing items. Does not block season traps, but is still triggered by them.",
     },
 }

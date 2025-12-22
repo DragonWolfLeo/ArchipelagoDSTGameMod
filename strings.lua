@@ -5,6 +5,7 @@ STRINGS.ARCHIPELAGO_DST = {
 	OUTDATED_CLIENT_VERSION = "Detected outdated client. It is recommended to update your .apworld to version "..GLOBAL.ArchipelagoDST.VERSION.CLIENT_VERSION_COMPATIBLE.." or newer!",
 	WARN_DIFFERENT_SEED_OR_SLOT = "Warning! Connected on a different seed or slot as previously saved. Save data is handled seperately, but there may still be unintended effects. Reloading is recommended!",
 	WARN_FILEDATA_DIFFERENT_SEED_OR_SLOT = "Error! Connected on a different seed or slot as previously saved. Load a new world, or connect to server used for this save.",
+    NOTIFY_SEASON_CHANGE_COOLDOWN_EXPIRE = "You are able to change the seasons again.",
 }
 STRINGS.UI.CRAFTING.DSTAP_LOCKED = "This recipe was lost to the multiverse!"
 STRINGS.UI.CRAFTING.DSTAP_LOCKED_INGREDIENTS = "You can't make this because you haven't found all your ingredients!"

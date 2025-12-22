@@ -69,6 +69,9 @@ local DSTAPManager = Class(function(self, inst)
     self.sendqueue_bookmark = 0
     self.sendqueue_lowpriority_bookmark = 0
 
+    self.seasonchangecooldown = 0
+    self.inst:StartUpdatingComponent(self)
+
     -- self.inst:DoStaticPeriodicTask(0.1, OnTick, nil, self)
     self.inst:DoStaticPeriodicTask(2, OnTick, nil, self)
 
@@ -132,6 +135,7 @@ function DSTAPManager:OnSave()
         slotdata = self.slotdata,
         slotnum = self.slotnum or 0,
         slotname = self.slotname or "Player",
+        seasonchangecooldown = self.seasonchangecooldown
     }
     if self.seed then data.seed = self.seed end
     return data
@@ -141,6 +145,9 @@ function DSTAPManager:OnLoad(data)
     if data.seed then self.seed = data.seed end
     if data.slotdata then self.slotdata = data.slotdata end
     if data.slotname then self.slotname = data.slotname end
+    if data.seasonchangecooldown then
+        self.seasonchangecooldown = math.min(data.seasonchangecooldown, ArchipelagoDST.TUNING.SEASON_CHANGE_COOLDOWN_DAYS * TUNING.TOTAL_DAY_TIME)
+    end
     self.slotnum = data.slotnum or 0
     self:ResetOutputData()
 
@@ -203,6 +210,24 @@ function DSTAPManager:SyncToShards()
         end
     end
     
+end
+
+function DSTAPManager:TriggerSeasonChangeCooldown()
+    self.seasonchangecooldown = ArchipelagoDST.TUNING.SEASON_CHANGE_COOLDOWN_DAYS * TUNING.TOTAL_DAY_TIME
+end
+
+function DSTAPManager:IsSeasonChangeCooldownActive()
+    return self.seasonchangecooldown > 0
+end
+
+function DSTAPManager:OnUpdate(dt)
+    if self.seasonchangecooldown > 0 then
+        self.seasonchangecooldown = self.seasonchangecooldown - dt
+        if self.seasonchangecooldown <= 0 then
+            self.seasonchangecooldown = 0
+            TheNet:Announce(STRINGS.ARCHIPELAGO_DST.NOTIFY_SEASON_CHANGE_COOLDOWN_EXPIRE)
+        end
+    end
 end
 
 function DSTAPManager:ProcessItemQueue()

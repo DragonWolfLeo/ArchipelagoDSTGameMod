@@ -96,6 +96,8 @@ GLOBAL.ArchipelagoDST = {
 		DEATHLINK_PENALTY = GetModConfigData("deathlink_penalty") or 1,
 
 		OVERRIDE_LOCAL_DEATH_LINK = GetModConfigData("localdeathlink") or "match",
+
+		SEASON_CHANGE_COOLDOWN_DAYS = GetModConfigData("seasonchangecooldown_days") or 1,
 	},
 	CRAFT_MODES = {
 		VANILLA = "vanilla",

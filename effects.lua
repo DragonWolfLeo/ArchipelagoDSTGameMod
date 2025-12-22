@@ -159,6 +159,9 @@ local function SeasonTrap(season)
 		if GLOBAL.TheWorld.ismastershard then
 			-- Change the season
 			GLOBAL.TheWorld:PushEvent("ms_setseason", season)
+			if GLOBAL.TheWorld.components.dstapmanager then
+				GLOBAL.TheWorld.components.dstapmanager:TriggerSeasonChangeCooldown()
+			end
 		end
 	end
 end

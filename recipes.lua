@@ -7,8 +7,15 @@ local setseason = function(season)
 	if GLOBAL.TheWorld.state.season == season then
 		return false, "DSTAP_SEASONCHANGEFAIL"
 	end
-	GLOBAL.TheWorld:PushEvent("ms_setseason", season)
-	return true
+	if GLOBAL.TheWorld.components.dstapmanager then
+		if GLOBAL.TheWorld.components.dstapmanager:IsSeasonChangeCooldownActive() then
+			return false, "DSTAP_SEASONCHANGEFAIL_COOLDOWN"
+		end
+		GLOBAL.TheWorld:PushEvent("ms_setseason", season)
+		GLOBAL.TheWorld.components.dstapmanager:TriggerSeasonChangeCooldown()
+		return true
+	end
+	return false
 end
 local setmoonphase = function(moonphase)
 	if GLOBAL.TheWorld:HasTag("cave") then
@@ -17,8 +24,15 @@ local setmoonphase = function(moonphase)
 	if GLOBAL.TheWorld.state.moonphase == moonphase then
 		return false, "DSTAP_MOONPHASECHANGEFAIL"
 	end
-	GLOBAL.TheWorld:PushEvent("ms_setmoonphase", {moonphase = moonphase, iswaxing = (moonphase == "new")})
-	return true
+	if GLOBAL.TheWorld.components.dstapmanager then
+		if GLOBAL.TheWorld.components.dstapmanager:IsSeasonChangeCooldownActive() then
+			return false, "DSTAP_SEASONCHANGEFAIL_COOLDOWN"
+		end
+		GLOBAL.TheWorld:PushEvent("ms_setmoonphase", {moonphase = moonphase, iswaxing = (moonphase == "new")})
+		GLOBAL.TheWorld.components.dstapmanager:TriggerSeasonChangeCooldown()
+		return true
+	end
+	return false
 end
 for pref, fn in pairs({
 	dstap_seasonchange_autumn = function() return setseason("autumn") end,
